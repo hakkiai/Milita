@@ -1,0 +1,75 @@
+import 'dotenv/config';
+
+export default {
+  expo: {
+    name: "Meetr",
+    slug: "meetr-app",
+    version: "1.0.0",
+    orientation: "portrait",
+    icon: "./assets/images/icon.png",
+    scheme: "myapp",
+    userInterfaceStyle: "automatic",
+    newArchEnabled: false,
+    ios: {
+      supportsTablet: true,
+      bundleIdentifier: "com.xale11.basketballmeetupapp",
+      infoPlist: {
+        ITSAppUsesNonExemptEncryption: false,
+        NSLocationWhenInUseUsageDescription: "This app uses your location to show nearby venues and help you find meetups near you.",
+        NSLocationAlwaysAndWhenInUseUsageDescription: "This app uses your location to show nearby venues and help you find meetups near you."
+      }
+    },
+    web: {
+      bundler: "metro",
+      output: "single",
+      favicon: "./assets/images/favicon.png"
+    },
+    plugins: [
+      "expo-router",
+      "expo-font",
+      "expo-web-browser",
+      [
+        "expo-location",
+        {
+          locationAlwaysAndWhenInUsePermission:
+            "Allow $(PRODUCT_NAME) to use your location to show nearby venues and meetups."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          photosPermission:
+            "This app needs access to your photos so you can upload and share event or venue images."
+        }
+      ]
+    ],
+    experiments: {
+      typedRoutes: true
+    },
+    extra: {
+      router: {},
+      eas: {
+        projectId: "8a11d484-17b7-4a98-8803-2f8b72c5166c"
+      },
+      googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY
+    },
+    android: {
+      package: "com.xale11.basketballmeetupapp",
+      permissions: [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ],
+      config: {
+        googleMaps: {
+          apiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY
+        }
+      }
+    },
+    "ios": {
+      bundleIdentifier: "com.xale11.basketballmeetupapp",
+      config: {
+        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
+      },
+    }
+  }
+}; 
