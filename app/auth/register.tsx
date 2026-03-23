@@ -61,10 +61,10 @@ export default function RegisterScreen() {
           <View style={styles.content}>
             <View style={styles.header}>
               <View style={styles.logo}>
-                <Text style={styles.logoText}>🏀</Text>
+                <Text style={styles.logoText}>🤝</Text>
               </View>
-              <Text style={styles.title}>Join the Game</Text>
-              <Text style={styles.subtitle}>Create your account to start playing</Text>
+              <Text style={styles.title}>Join the Community</Text>
+              <Text style={styles.subtitle}>Create your account to start meeting people</Text>
             </View>
 
             <View style={styles.form}>

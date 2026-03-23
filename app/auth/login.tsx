@@ -41,10 +41,10 @@ export default function LoginScreen() {
         <View style={styles.content}>
           <View style={styles.header}>
             <View style={styles.logo}>
-              <Text style={styles.logoText}>🏀</Text>
+              <Text style={styles.logoText}>🤝</Text>
             </View>
             <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Sign in to find courts and connect with players</Text>
+            <Text style={styles.subtitle}>Sign in to discover events and connect with people</Text>
           </View>
 
           <View style={styles.form}>
