@@ -17,7 +17,7 @@ export default function TabLayout() {
           height: 80,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: '600',
           marginTop: 4,
         },
@@ -53,7 +53,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="clubs"
         options={{
-          title: 'Communities',
+          title: 'Community',
           tabBarIcon: ({ size, color }) => (
             <Users size={size} color={color} />
           ),
