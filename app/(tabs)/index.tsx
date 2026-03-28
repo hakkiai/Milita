@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Search, Bell, Plus, MapPin, Calendar, Users, X } from 'lucide-react-native';
 import { CourtCard } from '@/components/CourtCard';
@@ -36,7 +36,7 @@ export default function HomeScreen() {
     return mockEvents.filter(
       (e) =>
         e.title.toLowerCase().includes(q) ||
-        e.description.toLowerCase().includes(q)
+        e.description?.toLowerCase().includes(q)
     );
   }, [searchQuery]);
 
@@ -67,9 +67,15 @@ export default function HomeScreen() {
         </View>
       ) : (
         <View style={styles.header}>
-          <View>
-            <Text style={styles.greeting}>Welcome back,</Text>
-            <Text style={styles.userName}>{firstName} 👋</Text>
+          <View style={styles.userInfo}>
+            <Image 
+              source={{ uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&h=150&q=80' }} 
+              style={styles.profileImage} 
+            />
+            <View>
+              <Text style={styles.greeting}>Welcome back,</Text>
+              <Text style={styles.userName}>{firstName} 👋</Text>
+            </View>
           </View>
           <View style={styles.headerActions}>
             <TouchableOpacity style={styles.iconButton} onPress={() => setSearchVisible(true)}>
@@ -93,23 +99,25 @@ export default function HomeScreen() {
           </View>
         ) : (
           /* Quick Stats */
-          <View style={styles.quickStats}>
-            <View style={styles.statCard}>
-              <MapPin size={20} color="#FF6B35" />
-              <Text style={styles.statNumber}>12</Text>
-              <Text style={styles.statLabel}>Venues Nearby</Text>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false} 
+            style={styles.quickStatsContainer}
+            contentContainerStyle={styles.quickStats}
+          >
+            <View style={styles.statChip}>
+              <MapPin size={16} color="#FF6B35" strokeWidth={2.5} />
+              <Text style={styles.statChipText}>12 Venues</Text>
             </View>
-            <View style={styles.statCard}>
-              <Calendar size={20} color="#FF6B35" />
-              <Text style={styles.statNumber}>3</Text>
-              <Text style={styles.statLabel}>Events Today</Text>
+            <View style={styles.statChip}>
+              <Calendar size={16} color="#FF6B35" strokeWidth={2.5} />
+              <Text style={styles.statChipText}>3 Events Today</Text>
             </View>
-            <View style={styles.statCard}>
-              <Users size={20} color="#FF6B35" />
-              <Text style={styles.statNumber}>28</Text>
-              <Text style={styles.statLabel}>People Online</Text>
+            <View style={styles.statChip}>
+              <Users size={16} color="#FF6B35" strokeWidth={2.5} />
+              <Text style={styles.statChipText}>28 Online</Text>
             </View>
-          </View>
+          </ScrollView>
         )}
 
         {/* Venues Section */}
@@ -209,31 +217,45 @@ const styles = StyleSheet.create({
     borderColor: '#FFD9C7',
   },
   searchBannerText: { color: '#FF6B35', fontWeight: '600', fontSize: 14 },
-  greeting: { fontSize: 16, color: '#666' },
-  userName: { fontSize: 24, fontWeight: '700', color: '#1A1A1A' },
+  userInfo: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  profileImage: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#F0F0F0' },
+  greeting: { fontSize: 14, color: '#666', marginBottom: 2 },
+  userName: { fontSize: 20, fontWeight: '700', color: '#1A1A1A' },
   headerActions: { flexDirection: 'row', gap: 12 },
   iconButton: { padding: 8, borderRadius: 12, backgroundColor: '#F8F9FA' },
   content: { flex: 1, paddingHorizontal: 20 },
+  quickStatsContainer: {
+    marginHorizontal: -20,
+    marginTop: 16,
+    marginBottom: 24,
+  },
   quickStats: {
+    paddingHorizontal: 20,
+    gap: 12,
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 20,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
     alignItems: 'center',
-    marginHorizontal: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
   },
-  statNumber: { fontSize: 24, fontWeight: '700', color: '#1A1A1A', marginTop: 8 },
-  statLabel: { fontSize: 12, color: '#666', marginTop: 4, textAlign: 'center' },
+  statChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  statChipText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    marginLeft: 6,
+  },
   section: { marginBottom: 24 },
   sectionHeader: {
     flexDirection: 'row',
