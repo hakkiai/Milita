@@ -12,17 +12,20 @@ import {
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { auth } from '@/api/firebase';
 import {
   QueryClient,
   QueryClientProvider,
-  useQueryClient,
 } from '@tanstack/react-query';
 import { AuthProvider } from '@/providers/AuthProvider';
+import { ClerkProvider } from '@clerk/clerk-expo';
+import { tokenCache } from '@clerk/clerk-expo/token-cache';
 
-export default function RootLayout() {
+const clerkPublishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
+const queryClient = new QueryClient();
+
+function RootNavigator() {
   useFrameworkReady();
-  const { user, loading, session } = useAuth();
+  const { isLoaded, isSignedIn, user } = useAuth();
 
   const [fontsLoaded] = useFonts({
     'Inter-Regular': Inter_400Regular,
@@ -32,47 +35,39 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (!loading && fontsLoaded) {
-      const isUserAuthenticated = async () => {
-        const isAuth = session
-        if (isAuth) {
-          console.log(auth.currentUser);
-          router.push('/(tabs)');
-        } else {
-          console.log('User is not authenticated');
-          router.replace('/auth/login');
-        }
-      };
-      isUserAuthenticated();
+    if (isLoaded && fontsLoaded) {
+      if (isSignedIn) {
+        router.push('/(tabs)');
+      } else {
+        router.replace('/auth/login');
+      }
     }
-  }, [user, loading, fontsLoaded]);
+  }, [isLoaded, isSignedIn, fontsLoaded]);
 
-  const queryClient = new QueryClient();
-
-  if (!fontsLoaded) {
-    return (
-      <>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <LoadingSpinner />
-          </AuthProvider>
-        </QueryClientProvider>
-      </>
-    );
+  if (!fontsLoaded || !isLoaded) {
+    return <LoadingSpinner />;
   }
 
   return (
     <>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="auth" />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+      <StatusBar style="dark" />
+    </>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <ClerkProvider publishableKey={clerkPublishableKey} tokenCache={tokenCache}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="auth" />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-          <StatusBar style="dark" />
+          <RootNavigator />
         </AuthProvider>
       </QueryClientProvider>
-    </>
+    </ClerkProvider>
   );
 }

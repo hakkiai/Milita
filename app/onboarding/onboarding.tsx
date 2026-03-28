@@ -23,7 +23,7 @@ import { UK_UNIVERSITIES } from '@/utils/ukUniversities';
 import { uploadImagesToStorage } from '@/api/utils.api';
 
 export default function OnboardingScreen() {
-  const { user, loading, session } = useAuth();
+  const { user, isLoaded } = useAuth();
 
   const [step, setStep] = useState(1);
   const [name, setName] = useState(user?.name ?? '');
@@ -94,9 +94,9 @@ export default function OnboardingScreen() {
       let photoUrl: string | undefined = undefined;
       
       // Upload photo if selected
-      if (photoUri && session?.user?.id) {
+      if (photoUri && user?.id) {
         try {
-          const uploadedUrls = await uploadImagesToStorage([photoUri], 'profiles', session.user.id);
+          const uploadedUrls = await uploadImagesToStorage([photoUri], 'profiles', user.id);
           photoUrl = uploadedUrls[0];
         } catch (uploadError) {
           console.error('Failed to upload photo:', uploadError);
@@ -145,7 +145,7 @@ export default function OnboardingScreen() {
     );
   };
 
-  if (loading || submitting) {
+  if (!isLoaded || submitting) {
     return <LoadingSpinner />;
   }
 

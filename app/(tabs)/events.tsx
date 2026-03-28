@@ -23,7 +23,6 @@ import {
 import { EventCard } from '@/components/EventCard';
 import { mockEvents } from '@/utils/mockData';
 import { useAuth } from '@/hooks/useAuth';
-import { auth } from '@/api/firebase';
 import { useEffect } from 'react';
 import { CreateEventForm } from '@/types/event';
 import {

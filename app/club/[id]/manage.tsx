@@ -7,7 +7,7 @@ import { mockClubs } from '@/utils/mockData';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function ClubManageScreen() {
-  const { user, loading } = useAuth();
+  const { user, isLoaded } = useAuth();
   const { id } = useLocalSearchParams();
   const club = mockClubs.find(c => c.id === id);
   const [selectedTab, setSelectedTab] = useState('players');
@@ -19,12 +19,12 @@ export default function ClubManageScreen() {
 
   // Redirect to login if not authenticated
   useEffect(() => {
-    if (!loading && !user) {
+    if (isLoaded && !user) {
       router.replace('/auth/login');
     }
-  }, [user, loading]);
+  }, [user, isLoaded]);
 
-  if (loading) {
+  if (!isLoaded) {
     return null; // or a loading spinner
   }
 

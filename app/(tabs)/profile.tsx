@@ -2,11 +2,9 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Settings, CreditCard as Edit, Trophy, Calendar, MapPin, Users, Star, ChevronRight, CreditCard, Bell, Shield } from 'lucide-react-native';
 import { useAuth } from '@/hooks/useAuth';
-import { useEffect } from 'react';
-import { auth } from '@/api/firebase';
 
 export default function ProfileScreen() {
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
 
   const stats = [
     { label: 'Events Joined', value: '12', icon: Calendar },
@@ -119,7 +117,7 @@ export default function ProfileScreen() {
           ))}
         </View>
 
-        <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+        <TouchableOpacity style={styles.logoutButton} onPress={signOut}>
           <Text style={styles.logoutText}>Log Out</Text>
         </TouchableOpacity>
       </ScrollView>
