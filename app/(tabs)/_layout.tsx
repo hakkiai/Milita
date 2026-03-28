@@ -62,6 +62,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="add-court"
         options={{
+          href: null,
           title: 'Host Event',
           tabBarIcon: ({ size, color }) => (
             <Plus size={size} color={color} />

@@ -159,7 +159,7 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
 
-      <TouchableOpacity style={styles.fab} onPress={() => router.push('/(tabs)/events')}>
+      <TouchableOpacity style={styles.fab} onPress={() => router.push('/(tabs)/add-court')}>
         <Plus size={24} color="#FFFFFF" />
       </TouchableOpacity>
     </SafeAreaView>
