@@ -107,11 +107,11 @@ export default function HomeScreen() {
           >
             <View style={styles.statChip}>
               <MapPin size={16} color="#FF6B35" strokeWidth={2.5} />
-              <Text style={styles.statChipText}>12 Venues</Text>
+              <Text style={styles.statChipText}>5 Venues</Text>
             </View>
             <View style={styles.statChip}>
               <Calendar size={16} color="#FF6B35" strokeWidth={2.5} />
-              <Text style={styles.statChipText}>3 Events Today</Text>
+              <Text style={styles.statChipText}>5 Events</Text>
             </View>
             <View style={styles.statChip}>
               <Users size={16} color="#FF6B35" strokeWidth={2.5} />
@@ -135,7 +135,7 @@ export default function HomeScreen() {
           {filteredCourts.length === 0 ? (
             <Text style={styles.emptyText}>No venues match your search.</Text>
           ) : (
-            filteredCourts.slice(0, searchQuery.trim() ? undefined : 2).map((court) => (
+            filteredCourts.map((court) => (
               <CourtCard
                 key={court.id}
                 court={court}
