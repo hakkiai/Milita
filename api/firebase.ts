@@ -2,27 +2,24 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { getDatabase } from "firebase/database";
 
-// Your Firebase config
 const firebaseConfig = {
-  apiKey: "AIzaSyDPs-WTfW_y23_o0UvGzktTLk2tg6eOj_8",
-  authDomain: "basketball-meetup-fd5a6.firebaseapp.com",
-  projectId: "basketball-meetup-fd5a6",
-  storageBucket: "basketball-meetup-fd5a6.firebasestorage.app",
-  messagingSenderId: "327089960623",
-  appId: "1:327089960623:web:263500948ec99b67e2c65a",
-  measurementId: "G-TBY1V744B3"
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY!,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN!,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID!,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET!,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID!,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID!,
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  databaseURL: process.env.EXPO_PUBLIC_FIREBASE_DATABASE_URL!,
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize services you need
 const auth = getAuth(app);
-// const auth = initializeAuth(app, {
-//   persistence: getReactNativePersistence(ReactNativeAsyncStorage)
-// });
 const db = getFirestore(app);
 const storage = getStorage(app);
+const rtdb = getDatabase(app);
 
-export { app, auth, db, storage };
+export { app, auth, db, storage, rtdb };

@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Search, Bell, Plus, MapPin, Calendar, Users, X } from 'lucide-react-native';
+import { Search, Bell, Plus, MapPin, Calendar, Users, X, MessageCircle } from 'lucide-react-native';
 import { CourtCard } from '@/components/CourtCard';
 import { EventCard } from '@/components/EventCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
@@ -9,10 +9,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'expo-router';
 import { useState, useMemo } from 'react';
 import { Court } from '@/types/courts';
+import { useChatContext } from '@/providers/ChatProvider';
 
 export default function HomeScreen() {
   const { user, isLoaded } = useAuth();
   const router = useRouter();
+  const { totalUnread } = useChatContext();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchVisible, setSearchVisible] = useState(false);
 
@@ -80,6 +82,19 @@ export default function HomeScreen() {
           <View style={styles.headerActions}>
             <TouchableOpacity style={styles.iconButton} onPress={() => setSearchVisible(true)}>
               <Search size={24} color="#1A1A1A" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={() => router.push('/chat')}
+            >
+              <MessageCircle size={24} color="#1A1A1A" />
+              {totalUnread > 0 && (
+                <View style={styles.chatBadge}>
+                  <Text style={styles.chatBadgeText}>
+                    {totalUnread > 99 ? '99+' : totalUnread}
+                  </Text>
+                </View>
+              )}
             </TouchableOpacity>
             <TouchableOpacity style={styles.iconButton}>
               <Bell size={24} color="#1A1A1A" />
@@ -282,5 +297,24 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
+  },
+  chatBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#FF6B35',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 3,
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
+  },
+  chatBadgeText: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
 });

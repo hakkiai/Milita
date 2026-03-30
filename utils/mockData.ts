@@ -320,3 +320,105 @@ export const mockClubs: Club[] = [
     createdAt: new Date(),
   },
 ];
+
+export interface SocialUser {
+  id: string;
+  name: string;
+  avatar: string;
+  bio: string;
+  followersCount: number;
+  followingCount: number;
+  isFollowing: boolean;
+  isFollowingYou: boolean;
+}
+
+export const mockSocialUsers: SocialUser[] = [
+  {
+    id: 'u1',
+    name: 'Priya Sharma',
+    avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=200',
+    bio: 'Explorer, photographer & coffee addict ☕. Always looking for the next meetup!',
+    followersCount: 312,
+    followingCount: 189,
+    isFollowing: true,
+    isFollowingYou: true,
+  },
+  {
+    id: 'u2',
+    name: 'Arjun Mehta',
+    avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=200',
+    bio: 'Badminton enthusiast and weekend hiker 🏸⛰️',
+    followersCount: 204,
+    followingCount: 133,
+    isFollowing: true,
+    isFollowingYou: false,
+  },
+  {
+    id: 'u3',
+    name: 'Sneha Kapoor',
+    avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200',
+    bio: 'Yoga teacher by day, foodie by night 🧘‍♀️🍜',
+    followersCount: 541,
+    followingCount: 220,
+    isFollowing: false,
+    isFollowingYou: true,
+  },
+  {
+    id: 'u4',
+    name: 'Rahul Nair',
+    avatar: 'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=200',
+    bio: 'Tech startup founder. Love community meetups and brainstorming sessions.',
+    followersCount: 880,
+    followingCount: 412,
+    isFollowing: false,
+    isFollowingYou: false,
+  },
+  {
+    id: 'u5',
+    name: 'Aisha Patel',
+    avatar: 'https://images.pexels.com/photos/1065084/pexels-photo-1065084.jpeg?auto=compress&cs=tinysrgb&w=200',
+    bio: 'Music, art, and spontaneous road trips 🎵🎨🚗',
+    followersCount: 157,
+    followingCount: 91,
+    isFollowing: true,
+    isFollowingYou: true,
+  },
+];
+
+export interface MockMessage {
+  id: string;
+  senderId: string; // 'me' or a SocialUser id
+  text: string;
+  timestamp: string;
+}
+
+export interface MockThread {
+  userId: string;
+  messages: MockMessage[];
+}
+
+export const mockThreads: MockThread[] = [
+  {
+    userId: 'u1',
+    messages: [
+      { id: 'm1', senderId: 'u1', text: 'Hey! Are you coming to the rooftop meetup tonight?', timestamp: '2026-03-29T09:30:00Z' },
+      { id: 'm2', senderId: 'me', text: 'Yes! Looking forward to it 🙌', timestamp: '2026-03-29T09:32:00Z' },
+      { id: 'm3', senderId: 'u1', text: 'Amazing! I\'ll save you a spot 😊', timestamp: '2026-03-29T09:33:00Z' },
+    ],
+  },
+  {
+    userId: 'u2',
+    messages: [
+      { id: 'm4', senderId: 'u2', text: 'Wanna play badminton this weekend at HSR Arena?', timestamp: '2026-03-28T18:00:00Z' },
+      { id: 'm5', senderId: 'me', text: 'Definitely! Saturday morning?', timestamp: '2026-03-28T18:10:00Z' },
+    ],
+  },
+  {
+    userId: 'u5',
+    messages: [
+      { id: 'm6', senderId: 'u5', text: 'Loved your check-in at Cubbon Park! Beautiful place.', timestamp: '2026-03-27T14:20:00Z' },
+      { id: 'm7', senderId: 'me', text: 'Thank you! It\'s my go-to spot for weekends.', timestamp: '2026-03-27T14:25:00Z' },
+      { id: 'm8', senderId: 'u5', text: 'We should go together sometime!', timestamp: '2026-03-27T14:26:00Z' },
+    ],
+  },
+];

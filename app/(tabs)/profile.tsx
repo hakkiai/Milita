@@ -1,390 +1,432 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import {
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Image,
+  Animated, Easing,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Settings, CreditCard as Edit, Trophy, Calendar, MapPin, Users, Star, ChevronRight, CreditCard, Bell, Shield } from 'lucide-react-native';
+import {
+  CreditCard as Edit, Trophy, Calendar, MapPin, Users, Star,
+  ChevronRight, Bell, Shield, MessageCircle, Sun, Moon, Smartphone,
+  UserCheck, UserPlus, Settings,
+} from 'lucide-react-native';
 import { useAuth } from '@/hooks/useAuth';
+import { router } from 'expo-router';
+import { useState, useRef } from 'react';
+import { useTheme, useThemeColors, ThemeMode } from '@/providers/ThemeProvider';
+import { mockSocialUsers } from '@/utils/mockData';
+
+const THEME_OPTIONS: { label: string; value: ThemeMode; Icon: any }[] = [
+  { label: 'System', value: 'system', Icon: Smartphone },
+  { label: 'Light', value: 'light', Icon: Sun },
+  { label: 'Dark', value: 'dark', Icon: Moon },
+];
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
+  const C = useThemeColors();
+  const { theme, setTheme } = useTheme();
+  const [showThemePicker, setShowThemePicker] = useState(false);
+  const themeAnim = useRef(new Animated.Value(0)).current;
+
+  const followersCount = mockSocialUsers.filter((u) => u.isFollowingYou).length;
+  const followingCount = mockSocialUsers.filter((u) => u.isFollowing).length;
+
+  const firstName = user?.name?.split(' ')[0] ?? 'User';
+
+  const toggleThemePicker = () => {
+    const toValue = showThemePicker ? 0 : 1;
+    setShowThemePicker(!showThemePicker);
+    Animated.timing(themeAnim, {
+      toValue,
+      duration: 220,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+  };
 
   const stats = [
-    { label: 'Events Joined', value: '12', icon: Calendar },
-    { label: 'Venues Visited', value: '8', icon: MapPin },
-    { label: 'Meetups Attended', value: '45', icon: Trophy },
+    { label: 'Events\nJoined', value: '12', icon: Calendar },
+    { label: 'Venues\nVisited', value: '8', icon: MapPin },
+    { label: 'Meetups', value: '45', icon: Trophy },
     { label: 'Rating', value: '4.8', icon: Star },
   ];
 
-  const menuItems = [
-    { label: 'Edit Profile', icon: Edit, onPress: () => {} },
-    { label: 'Payment Methods', icon: CreditCard, onPress: () => {} },
-    { label: 'Notifications', icon: Bell, onPress: () => {} },
-    { label: 'Privacy & Security', icon: Shield, onPress: () => {} },
-    { label: 'Settings', icon: Settings, onPress: () => {} },
-  ];
+  const themePickerHeight = themeAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 62],
+  });
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Profile</Text>
-        <TouchableOpacity style={styles.settingsButton}>
-          <Settings size={24} color="#1A1A1A" />
+    <SafeAreaView style={[styles.container, { backgroundColor: C.background }]}>
+      {/* Header */}
+      <View style={[styles.header, { backgroundColor: C.surface, borderBottomColor: C.border }]}>
+        <Text style={[styles.headerTitle, { color: C.text }]}>Profile</Text>
+        <TouchableOpacity
+          style={[styles.iconBtn, { backgroundColor: C.surfaceAlt }]}
+          onPress={() => router.push('/profile/edit')}
+        >
+          <Settings size={20} color={C.text} />
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.profileSection}>
-          <View style={styles.profileHeader}>
-            <Image 
-              source={{ uri: user?.avatar || 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=400' }}
-              style={styles.avatar}
-            />
-            <View style={styles.profileInfo}>
-              <Text style={styles.userName}>{user?.name}</Text>
-              <Text style={styles.userEmail}>{user?.email}</Text>
-              <View style={styles.statusBadge}>
-                <Text style={styles.statusText}>Active Member</Text>
+      <ScrollView showsVerticalScrollIndicator={false} style={styles.scroll}>
+
+        {/* ── Avatar Card ─────────────────────────────────────────── */}
+        <View style={[styles.card, styles.profileCard, { backgroundColor: C.surface }]}>
+          <View style={styles.profileTop}>
+            <View style={styles.avatarWrap}>
+              {user?.photoUrl ? (
+                <Image source={{ uri: user.photoUrl }} style={styles.avatar} />
+              ) : (
+                <View style={[styles.avatarFallback, { backgroundColor: C.accent }]}>
+                  <Text style={styles.avatarInitial}>{firstName.charAt(0)}</Text>
+                </View>
+              )}
+              <View style={[styles.activeDot, { borderColor: C.surface }]} />
+            </View>
+
+            <View style={styles.profileMeta}>
+              <Text style={[styles.userName, { color: C.text }]}>{user?.name ?? 'User'}</Text>
+              <Text style={[styles.userEmail, { color: C.textMuted }]}>{user?.email}</Text>
+              <View style={[styles.badge, { backgroundColor: C.successLight }]}>
+                <Text style={[styles.badgeText, { color: C.success }]}>Active Member</Text>
               </View>
             </View>
-            <TouchableOpacity style={styles.editButton}>
-              <Edit size={20} color="#FF6B35" />
+
+            <TouchableOpacity
+              style={[styles.editBtn, { backgroundColor: C.accentLight }]}
+              onPress={() => router.push('/profile/edit')}
+            >
+              <Edit size={18} color={C.accent} />
             </TouchableOpacity>
           </View>
-        </View>
 
-        <View style={styles.statsSection}>
-          <Text style={styles.sectionTitle}>Your Stats</Text>
-          <View style={styles.statsGrid}>
-            {stats.map((stat, index) => (
-              <View key={index} style={styles.statCard}>
-                <stat.icon size={24} color="#FF6B35" />
-                <Text style={styles.statValue}>{stat.value}</Text>
-                <Text style={styles.statLabel}>{stat.label}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        <View style={styles.achievementsSection}>
-          <Text style={styles.sectionTitle}>Recent Achievements</Text>
-          <View style={styles.achievementsList}>
-            <View style={styles.achievementItem}>
-              <View style={styles.achievementIcon}>
-                <Trophy size={20} color="#FFD700" />
-              </View>
-              <View style={styles.achievementInfo}>
-                <Text style={styles.achievementTitle}>Top Connector</Text>
-                <Text style={styles.achievementDescription}>Organized 3 meetups this month</Text>
-              </View>
-            </View>
-            <View style={styles.achievementItem}>
-              <View style={styles.achievementIcon}>
-                <Users size={20} color="#FF6B35" />
-              </View>
-              <View style={styles.achievementInfo}>
-                <Text style={styles.achievementTitle}>Regular Attendee</Text>
-                <Text style={styles.achievementDescription}>Attended 10 meetups this month</Text>
-              </View>
+          {/* ── Followers / Following row ────────────────────── */}
+          <View style={[styles.socialRow, { borderTopColor: C.border }]}>
+            <TouchableOpacity
+              style={styles.socialItem}
+              onPress={() => router.push('/profile/followers')}
+            >
+              <Text style={[styles.socialCount, { color: C.text }]}>{followersCount}</Text>
+              <Text style={[styles.socialLabel, { color: C.textMuted }]}>Followers</Text>
+            </TouchableOpacity>
+            <View style={[styles.socialDivider, { backgroundColor: C.border }]} />
+            <TouchableOpacity
+              style={styles.socialItem}
+              onPress={() => router.push('/profile/following')}
+            >
+              <Text style={[styles.socialCount, { color: C.text }]}>{followingCount}</Text>
+              <Text style={[styles.socialLabel, { color: C.textMuted }]}>Following</Text>
+            </TouchableOpacity>
+            <View style={[styles.socialDivider, { backgroundColor: C.border }]} />
+            <View style={styles.socialItem}>
+              <Text style={[styles.socialCount, { color: C.text }]}>45</Text>
+              <Text style={[styles.socialLabel, { color: C.textMuted }]}>Meetups</Text>
             </View>
           </View>
         </View>
 
-        <View style={styles.clubSection}>
-          <Text style={styles.sectionTitle}>Community Memberships</Text>
-          <View style={styles.clubCard}>
-            <View style={styles.clubInfo}>
-              <View style={styles.clubLogo}>
-                <Text style={styles.clubInitial}>BLR</Text>
-              </View>
-              <View>
-                <Text style={styles.clubName}>Bangalore Explorers</Text>
-                <Text style={styles.clubRole}>Member since 2024</Text>
-              </View>
-            </View>
-            <TouchableOpacity style={styles.clubButton}>
-              <Text style={styles.clubButtonText}>View Club</Text>
+        {/* ── About Section ────────────────────────────────────────── */}
+        <View style={[styles.card, { backgroundColor: C.surface }]}>
+          <View style={styles.cardHeader}>
+            <Text style={[styles.sectionTitle, { color: C.text }]}>About</Text>
+            <TouchableOpacity onPress={() => router.push('/profile/edit')}>
+              <Edit size={16} color={C.accent} />
             </TouchableOpacity>
           </View>
+          {user?.bio ? (
+            <Text style={[styles.bioText, { color: C.textSecondary }]}>{user.bio}</Text>
+          ) : (
+            <TouchableOpacity onPress={() => router.push('/profile/edit')}>
+              <Text style={[styles.bioPlaceholder, { color: C.textMuted }]}>
+                + Add a short bio about yourself…
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
 
-        <View style={styles.menuSection}>
-          {menuItems.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.menuItem} onPress={item.onPress}>
-              <View style={styles.menuItemLeft}>
-                <item.icon size={20} color="#666" />
-                <Text style={styles.menuItemText}>{item.label}</Text>
-              </View>
-              <ChevronRight size={20} color="#666" />
-            </TouchableOpacity>
+        {/* ── Stats Grid ───────────────────────────────────────────── */}
+        <Text style={[styles.sectionHeading, { color: C.text }]}>Your Stats</Text>
+        <View style={styles.statsGrid}>
+          {stats.map((stat, i) => (
+            <View key={i} style={[styles.statCard, { backgroundColor: C.surface }]}>
+              <stat.icon size={22} color={C.accent} />
+              <Text style={[styles.statValue, { color: C.text }]}>{stat.value}</Text>
+              <Text style={[styles.statLabel, { color: C.textMuted }]}>{stat.label}</Text>
+            </View>
           ))}
         </View>
 
-        <TouchableOpacity style={styles.logoutButton} onPress={signOut}>
-          <Text style={styles.logoutText}>Log Out</Text>
+        {/* ── Achievements ─────────────────────────────────────────── */}
+        <Text style={[styles.sectionHeading, { color: C.text }]}>Achievements</Text>
+        <View style={[styles.card, { backgroundColor: C.surface }]}>
+          {[
+            { icon: Trophy, color: '#FFD700', bg: '#FFF9E0', title: 'Top Connector', desc: 'Organized 3 meetups this month' },
+            { icon: Users, color: C.accent, bg: C.accentLight, title: 'Regular Attendee', desc: 'Attended 10 meetups this month' },
+          ].map((a, i, arr) => (
+            <View
+              key={i}
+              style={[
+                styles.achieveRow,
+                { borderBottomColor: C.border, borderBottomWidth: i < arr.length - 1 ? 1 : 0 },
+              ]}
+            >
+              <View style={[styles.achieveIcon, { backgroundColor: a.bg }]}>
+                <a.icon size={18} color={a.color} />
+              </View>
+              <View style={styles.achieveInfo}>
+                <Text style={[styles.achieveTitle, { color: C.text }]}>{a.title}</Text>
+                <Text style={[styles.achieveDesc, { color: C.textMuted }]}>{a.desc}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+
+        {/* ── Settings Menu ────────────────────────────────────────── */}
+        <Text style={[styles.sectionHeading, { color: C.text }]}>Settings</Text>
+        <View style={[styles.card, styles.menuCard, { backgroundColor: C.surface, borderColor: C.border }]}>
+
+          {/* Edit Profile */}
+          <MenuItem
+            icon={<Edit size={20} color={C.accent} />}
+            label="Edit Profile"
+            C={C}
+            onPress={() => router.push('/profile/edit')}
+          />
+
+          {/* Messages */}
+          <MenuItem
+            icon={<MessageCircle size={20} color="#5B5BD6" />}
+            label="Messages"
+            C={C}
+            onPress={() => router.push('/chat')}
+            badgeCount={3}
+          />
+
+          {/* Followers */}
+          <MenuItem
+            icon={<UserCheck size={20} color="#30D158" />}
+            label="Followers"
+            C={C}
+            onPress={() => router.push('/profile/followers')}
+          />
+
+          {/* Following */}
+          <MenuItem
+            icon={<UserPlus size={20} color="#FF6B35" />}
+            label="Following"
+            C={C}
+            onPress={() => router.push('/profile/following')}
+          />
+
+          {/* Theme */}
+          <TouchableOpacity
+            style={[styles.menuItem, { borderBottomColor: C.border }]}
+            onPress={toggleThemePicker}
+            activeOpacity={0.7}
+          >
+            <View style={styles.menuLeft}>
+              <View style={[styles.menuIconWrap, { backgroundColor: '#FFF4E0' }]}>
+                <Sun size={18} color="#FF9500" />
+              </View>
+              <Text style={[styles.menuLabel, { color: C.text }]}>Theme</Text>
+            </View>
+            <View style={styles.menuRight}>
+              <Text style={[styles.menuValue, { color: C.textMuted }]}>
+                {THEME_OPTIONS.find((o) => o.value === theme)?.label}
+              </Text>
+              <ChevronRight size={16} color={C.textMuted} />
+            </View>
+          </TouchableOpacity>
+
+          {/* Theme picker inline */}
+          <Animated.View style={[styles.themePicker, { height: themePickerHeight, borderBottomColor: C.border }]}>
+            <View style={styles.themePickerInner}>
+              {THEME_OPTIONS.map((opt) => {
+                const active = theme === opt.value;
+                return (
+                  <TouchableOpacity
+                    key={opt.value}
+                    style={[
+                      styles.themeOption,
+                      {
+                        backgroundColor: active ? C.accentLight : C.surfaceAlt,
+                        borderColor: active ? C.accent : 'transparent',
+                      },
+                    ]}
+                    onPress={() => { setTheme(opt.value); setShowThemePicker(false); }}
+                  >
+                    <opt.Icon size={14} color={active ? C.accent : C.textMuted} />
+                    <Text
+                      style={[styles.themeOptionText, { color: active ? C.accent : C.textMuted }]}
+                    >
+                      {opt.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </Animated.View>
+
+          {/* Notifications */}
+          <MenuItem icon={<Bell size={20} color="#FF9500" />} label="Notifications" C={C} onPress={() => {}} />
+
+          {/* Privacy */}
+          <MenuItem icon={<Shield size={20} color="#5B5BD6" />} label="Privacy & Security" C={C} onPress={() => {}} isLast />
+        </View>
+
+        {/* ── Log Out ──────────────────────────────────────────────── */}
+        <TouchableOpacity
+          style={[styles.logoutBtn, { backgroundColor: C.surface }]}
+          onPress={signOut}
+        >
+          <Text style={[styles.logoutText, { color: C.danger }]}>Log Out</Text>
         </TouchableOpacity>
+
+        <View style={{ height: 40 }} />
       </ScrollView>
     </SafeAreaView>
   );
 }
 
+// ── Shared MenuItem Component ────────────────────────────────────────────────
+function MenuItem({
+  icon, label, C, onPress, badgeCount, isLast, value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  C: any;
+  onPress: () => void;
+  badgeCount?: number;
+  isLast?: boolean;
+  value?: string;
+}) {
+  return (
+    <TouchableOpacity
+      style={[styles.menuItem, { borderBottomColor: C.border, borderBottomWidth: isLast ? 0 : 1 }]}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
+      <View style={styles.menuLeft}>
+        <View style={[styles.menuIconWrap, { backgroundColor: C.surfaceAlt }]}>{icon}</View>
+        <Text style={[styles.menuLabel, { color: C.text }]}>{label}</Text>
+      </View>
+      <View style={styles.menuRight}>
+        {badgeCount ? (
+          <View style={[styles.badge2, { backgroundColor: C.accent }]}>
+            <Text style={styles.badge2Text}>{badgeCount}</Text>
+          </View>
+        ) : null}
+        {value ? <Text style={[styles.menuValue, { color: C.textMuted }]}>{value}</Text> : null}
+        <ChevronRight size={16} color={C.textMuted} />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+// ── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
+  container: { flex: 1 },
+  scroll: { flex: 1, paddingHorizontal: 16 },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1A1A1A',
+  headerTitle: { fontSize: 24, fontWeight: '700' },
+  iconBtn: { padding: 8, borderRadius: 12 },
+
+  // Card base
+  card: {
+    borderRadius: 16, padding: 16, marginBottom: 14,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07, shadowRadius: 8, elevation: 2,
   },
-  settingsButton: {
-    padding: 8,
-    borderRadius: 12,
-    backgroundColor: '#F8F9FA',
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+
+  // Profile card
+  profileCard: { padding: 20, paddingBottom: 0, marginTop: 20 },
+  profileTop: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
+  avatarWrap: { position: 'relative', marginRight: 14 },
+  avatar: { width: 76, height: 76, borderRadius: 38 },
+  avatarFallback: {
+    width: 76, height: 76, borderRadius: 38,
+    justifyContent: 'center', alignItems: 'center',
   },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
+  avatarInitial: { fontSize: 30, fontWeight: '700', color: '#fff' },
+  activeDot: {
+    position: 'absolute', bottom: 3, right: 3,
+    width: 14, height: 14, borderRadius: 7,
+    backgroundColor: '#30D158', borderWidth: 2,
   },
-  profileSection: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    marginTop: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+  profileMeta: { flex: 1 },
+  userName: { fontSize: 19, fontWeight: '700', marginBottom: 2 },
+  userEmail: { fontSize: 13, marginBottom: 8 },
+  badge: { alignSelf: 'flex-start', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3 },
+  badgeText: { fontSize: 11, fontWeight: '700' },
+  editBtn: { padding: 10, borderRadius: 12 },
+
+  // Social row
+  socialRow: {
+    flexDirection: 'row', borderTopWidth: 1, paddingTop: 14, paddingBottom: 16,
   },
-  profileHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginRight: 16,
-  },
-  profileInfo: {
-    flex: 1,
-  },
-  userName: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#1A1A1A',
-    marginBottom: 4,
-  },
-  userEmail: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
-  },
-  statusBadge: {
-    backgroundColor: '#E8F5E8',
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    alignSelf: 'flex-start',
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#28A745',
-  },
-  editButton: {
-    padding: 8,
-    borderRadius: 12,
-    backgroundColor: '#FFF4F0',
-  },
-  statsSection: {
-    marginTop: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1A1A1A',
-    marginBottom: 16,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
+  socialItem: { flex: 1, alignItems: 'center', gap: 2 },
+  socialDivider: { width: 1, marginVertical: 4 },
+  socialCount: { fontSize: 20, fontWeight: '700' },
+  socialLabel: { fontSize: 12 },
+
+  // Bio
+  sectionTitle: { fontSize: 16, fontWeight: '700' },
+  bioText: { fontSize: 15, lineHeight: 22 },
+  bioPlaceholder: { fontSize: 14, fontStyle: 'italic' },
+
+  // Stats
+  sectionHeading: { fontSize: 18, fontWeight: '700', marginBottom: 12, marginTop: 6 },
+  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 14 },
   statCard: {
-    flex: 1,
-    minWidth: 120,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    flex: 1, minWidth: 120, borderRadius: 14, padding: 14, alignItems: 'center',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 8, elevation: 2,
   },
-  statValue: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    marginTop: 8,
+  statValue: { fontSize: 22, fontWeight: '700', marginTop: 6 },
+  statLabel: { fontSize: 11, marginTop: 3, textAlign: 'center' },
+
+  // Achievements
+  achieveRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12 },
+  achieveIcon: {
+    width: 38, height: 38, borderRadius: 19,
+    justifyContent: 'center', alignItems: 'center', marginRight: 12,
   },
-  statLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 4,
-    textAlign: 'center',
-  },
-  achievementsSection: {
-    marginTop: 20,
-  },
-  achievementsList: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  achievementItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-  },
-  achievementIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#FFF4F0',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  achievementInfo: {
-    flex: 1,
-  },
-  achievementTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1A1A1A',
-    marginBottom: 4,
-  },
-  achievementDescription: {
-    fontSize: 14,
-    color: '#666',
-  },
-  clubSection: {
-    marginTop: 20,
-  },
-  clubCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  clubInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  clubLogo: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#FF6B35',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  clubInitial: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  clubName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1A1A1A',
-  },
-  clubRole: {
-    fontSize: 14,
-    color: '#666',
-  },
-  clubButton: {
-    backgroundColor: '#F8F9FA',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  clubButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1A1A1A',
-  },
-  menuSection: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    marginTop: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
+  achieveInfo: { flex: 1 },
+  achieveTitle: { fontSize: 15, fontWeight: '600', marginBottom: 2 },
+  achieveDesc: { fontSize: 13 },
+
+  // Menu
+  menuCard: { padding: 0, overflow: 'hidden' },
   menuItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1,
   },
-  menuItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  menuLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  menuRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  menuIconWrap: { width: 34, height: 34, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
+  menuLabel: { fontSize: 15, fontWeight: '500' },
+  menuValue: { fontSize: 13 },
+  badge2: { borderRadius: 10, paddingHorizontal: 7, paddingVertical: 2 },
+  badge2Text: { color: '#fff', fontSize: 11, fontWeight: '700' },
+
+  // Theme picker
+  themePicker: { overflow: 'hidden' },
+  themePickerInner: {
+    flexDirection: 'row', gap: 10, paddingHorizontal: 16, paddingBottom: 14,
   },
-  menuItemText: {
-    fontSize: 16,
-    color: '#1A1A1A',
-    marginLeft: 12,
+  themeOption: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 5, borderRadius: 20, paddingVertical: 8, borderWidth: 1.5,
   },
-  logoutButton: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 40,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+  themeOptionText: { fontSize: 13, fontWeight: '600' },
+
+  // Logout
+  logoutBtn: {
+    borderRadius: 16, paddingVertical: 16, alignItems: 'center', marginBottom: 16,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 8, elevation: 2,
   },
-  logoutText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#DC3545',
-  },
+  logoutText: { fontSize: 16, fontWeight: '700' },
 });

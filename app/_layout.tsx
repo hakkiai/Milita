@@ -17,6 +17,8 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query';
 import { AuthProvider } from '@/providers/AuthProvider';
+import { ThemeProvider } from '@/providers/ThemeProvider';
+import { ChatProvider } from '@/providers/ChatProvider';
 import { ClerkProvider } from '@clerk/clerk-expo';
 import { tokenCache } from '@clerk/clerk-expo/token-cache';
 
@@ -53,9 +55,14 @@ function RootNavigator() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="auth" />
+        <Stack.Screen name="profile/edit" />
+        <Stack.Screen name="profile/followers" />
+        <Stack.Screen name="profile/following" />
+        <Stack.Screen name="chat/index" />
+        <Stack.Screen name="chat/[userId]" />
         <Stack.Screen name="+not-found" />
       </Stack>
-      <StatusBar style="dark" />
+      <StatusBar style="auto" />
     </>
   );
 }
@@ -64,9 +71,13 @@ export default function RootLayout() {
   return (
     <ClerkProvider publishableKey={clerkPublishableKey} tokenCache={tokenCache}>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <RootNavigator />
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <ChatProvider>
+              <RootNavigator />
+            </ChatProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </QueryClientProvider>
     </ClerkProvider>
   );

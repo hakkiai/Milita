@@ -1,6 +1,8 @@
-import React, { createContext, useMemo } from "react"
+import React, { createContext, useMemo, useEffect } from "react"
 import { useAuth as useClerkAuth, useUser } from "@clerk/clerk-expo"
 import { User, OnboardingStatus } from "@/types/user"
+import { doc, setDoc } from "firebase/firestore"
+import { db } from "@/api/firebase"
 
 // ── Context types ─────────────────────────────────────────────────────────────
 type AuthContextValue = {
@@ -42,6 +44,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       bio: clerkUser.unsafeMetadata?.bio as string | undefined,
     }
   }, [clerkUser])
+
+  // Sync Clerk user to Firestore user registry on every sign-in
+  useEffect(() => {
+    if (!clerkUser) return
+    const name =
+      [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(' ') ||
+      clerkUser.primaryEmailAddress?.emailAddress?.split('@')[0] ||
+      'User'
+    const userDoc = {
+      id: clerkUser.id,
+      name,
+      email: clerkUser.primaryEmailAddress?.emailAddress ?? '',
+      photoUrl: clerkUser.imageUrl ?? '',
+      updatedAt: new Date().toISOString(),
+    }
+    setDoc(doc(db, 'users', clerkUser.id), userDoc, { merge: true }).catch(
+      (e) => console.warn('Firestore user sync failed:', e)
+    )
+  }, [clerkUser?.id, clerkUser?.firstName, clerkUser?.lastName, clerkUser?.imageUrl])
 
   const handleSignOut = async () => {
     try {
